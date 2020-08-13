@@ -8,16 +8,48 @@ provider:
   region: us-east-1
   environment:
     DDB_TABLE_NAME: ${self:custom.tableName}
+    S3_BUCKET_NAME: ${self:custom.bucketName}
+    OINP_TOPIC_ARN: !Ref OinpSnsTopic
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - !GetAtt DynamoDBTable.Arn
+        - !Join ["/", [!GetAtt DynamoDBTable.Arn, "index", "*"]]
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+        - s3:PutObject
+      Resource: !Join ["/", [!GetAtt S3Bucket.Arn, "*"]]
+    - Effect: Allow
+      Action: s3:ListBucket
+      Resource: !GetAtt S3Bucket.Arn
+    - Effect: Allow
+      Action: SNS:Publish
+      Resource: !Ref OinpSnsTopic
 
 custom:
+  serverless-layers:
+    dependenciesPath: ./package.json
+    layersDeploymentBucket: ${cf:${self:custom.stackName}.ServerlessDeploymentBucketName}
   tableName: ${self:service}-${self:provider.stage}
+  stackName: ${self:service}-${self:provider.stage}
+  bucketName: ${self:service}-${self:provider.stage}
 
 functions:
   oinpNotifier:
+    timeout: 30
     handler: index.handler
-    # events:
-    #   - eventBridge:
-    #       schedule: rate(1 minute)
+    events:
+      - eventBridge:
+          schedule: rate(1 minute)
 
 resources:
   Resources:
@@ -40,3 +72,28 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+    S3Bucket:
+      Type: AWS::S3::Bucket
+      DeletionPolicy: Retain
+      Properties:
+        BucketName: ${self:custom.bucketName}
+        BucketEncryption:
+          ServerSideEncryptionConfiguration:
+            - ServerSideEncryptionByDefault:
+                SSEAlgorithm: AES256
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+    OinpSnsTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        KmsMasterKeyId: alias/aws/sns
+        Subscription:
+          - Endpoint: nichenjie2013@gmail.com
+            Protocol: email
+        TopicName: oinp
+
+plugins:
+  - serverless-layers
