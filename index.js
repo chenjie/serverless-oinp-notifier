@@ -6,6 +6,7 @@ const sns = new AWS.SNS();
 const chromium = require("chrome-aws-lambda");
 const crypto = require("crypto");
 
+// Get latest record from DynamoDB
 async function getLatestDdbItem(url) {
   const { Items: items } = await ddb
     .query({
@@ -24,14 +25,15 @@ async function getLatestDdbItem(url) {
   return items[0];
 }
 
+// Lambda handler
 exports.handler = async (event) => {
-  let browser = null;
-
+  // OINP updates webpage
   const url =
-    event.url ||
     "https://www.ontario.ca/page/2020-ontario-immigrant-nominee-program-updates";
 
+  let browser = null;
   try {
+    // Initialize headless Chrome
     browser = await chromium.puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
@@ -41,17 +43,20 @@ exports.handler = async (event) => {
     });
 
     const page = await browser.newPage();
+    // Go to URL and wait for it to be fully loaded
     const response = await page.goto(url, {
       waitUntil: "networkidle0",
     });
     const headers = response.headers();
 
+    // Grab the inner text in the main content section which is then used to calculate an MD5 hash
     const mainContent = await page.evaluate(
       () => document.querySelector(".main-content").innerText
     );
     const md5 = crypto.createHash("md5").update(mainContent).digest("hex");
     console.log(md5);
 
+    // Grab the latest record in the database and compare the hash to see if there are any new updates
     const latestItem = await getLatestDdbItem(url);
     if (latestItem && latestItem.ContentMd5 === md5) {
       console.log(`ContentMd5 didn't change, skip`);
@@ -60,6 +65,7 @@ exports.handler = async (event) => {
 
     console.log(mainContent);
 
+    // If there is an update, take a full-page screenshot and store it in S3
     const imageBuffer = await page.screenshot({ fullPage: true });
     const s3Key = uuidv4();
 
@@ -72,6 +78,7 @@ exports.handler = async (event) => {
       })
       .promise();
 
+    // Insert a record into ddb with the new MD5 hash
     await ddb
       .put({
         TableName: process.env.DDB_TABLE_NAME,
@@ -85,6 +92,7 @@ exports.handler = async (event) => {
       })
       .promise();
 
+    // Notify us by publishing a message to SNS
     await sns
       .publish({
         TopicArn: process.env.OINP_TOPIC_ARN,
@@ -93,6 +101,7 @@ exports.handler = async (event) => {
       })
       .promise();
   } finally {
+    // Always close the browser even if there are any exceptions occurred in the try block
     if (browser !== null) {
       await browser.close();
     }

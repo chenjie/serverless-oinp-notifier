@@ -3,8 +3,10 @@ service: oinp-notifier
 provider:
   name: aws
   runtime: nodejs12.x
+  # Memory required to run headless Chrome
   memorySize: 1536
   stage: ${opt:stage, 'dev'}
+  # Feel free to change the deployment region
   region: us-east-1
   environment:
     DDB_TABLE_NAME: ${self:custom.tableName}
@@ -15,14 +17,8 @@ provider:
       Action:
         - dynamodb:DescribeTable
         - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
         - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-      Resource:
-        - !GetAtt DynamoDBTable.Arn
-        - !Join ["/", [!GetAtt DynamoDBTable.Arn, "index", "*"]]
+      Resource: !GetAtt DynamoDBTable.Arn
     - Effect: Allow
       Action:
         - s3:GetObject
@@ -39,18 +35,24 @@ custom:
   serverless-layers:
     dependenciesPath: ./package.json
     layersDeploymentBucket: ${cf:${self:custom.stackName}.ServerlessDeploymentBucketName}
+  # DynamoDB table name
   tableName: ${self:service}-${self:provider.stage}
+  # CloudFormation stack name
   stackName: ${self:service}-${self:provider.stage}
+  # S3 bucket name (used to store screenshots)
   bucketName: ${self:service}-${self:provider.stage}
 
 functions:
   oinpNotifier:
+    # Overwrite the default lambda timeout
     timeout: 30
     handler: index.handler
+    # EventBridge triggers the lambda every minute
     events:
       - eventBridge:
           schedule: rate(1 minute)
 
+# Extra AWS resources we need to provision
 resources:
   Resources:
     DynamoDBTable:
@@ -69,6 +71,7 @@ resources:
           - AttributeName: SK
             AttributeType: S
         BillingMode: PROVISIONED
+        # This provisioned throughput is under AWS Free Tier
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
@@ -77,6 +80,7 @@ resources:
       DeletionPolicy: Retain
       Properties:
         BucketName: ${self:custom.bucketName}
+        # Turn on AES256 encryption for data at rest in S3
         BucketEncryption:
           ServerSideEncryptionConfiguration:
             - ServerSideEncryptionByDefault:
@@ -89,11 +93,17 @@ resources:
     OinpSnsTopic:
       Type: AWS::SNS::Topic
       Properties:
+        # Use KMS to encrypt message
         KmsMasterKeyId: alias/aws/sns
+        # You can extend this `Subscription` list to invite more people
+        # subscribe to this topic even with different notification protocols
         Subscription:
           - Endpoint: nichenjie2013@gmail.com
             Protocol: email
+          # - Endpoint: another@email.com
+          #   Protocol: email
         TopicName: oinp
 
+# Reduce deployment package size by moving node_modules (except dev dependencies) into layer
 plugins:
   - serverless-layers

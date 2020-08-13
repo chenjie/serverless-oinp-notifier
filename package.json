@@ -1,22 +1,16 @@
 {
   "name": "oinp-notifier",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "A serverless notifier built to monitor OINP updates",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jellycsc/oinp-notifier.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/jellycsc/oinp-notifier/issues"
-  },
-  "homepage": "https://github.com/jellycsc/oinp-notifier#readme",
+  "keywords": [
+    "serverless",
+    "canada",
+    "oinp",
+    "notifier"
+  ],
+  "author": "Chenjie Ni",
+  "license": "MIT",
   "dependencies": {
     "chrome-aws-lambda": "^5.2.1",
     "puppeteer-core": "^5.2.1",
