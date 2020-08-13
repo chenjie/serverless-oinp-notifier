@@ -100,8 +100,8 @@ resources:
         Subscription:
           - Endpoint: nichenjie2013@gmail.com
             Protocol: email
-          # - Endpoint: another@email.com
-          #   Protocol: email
+          # - Endpoint: 6471234567
+          #   Protocol: sms
         TopicName: oinp
 
 # Reduce deployment package size by moving node_modules (except dev dependencies) into layer

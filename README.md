@@ -10,10 +10,10 @@ This is a fully serverless application running on AWS. It leverages [AWS Free Ti
 
 ## Features
 
-1. Uses headless Chrome to render dynamic javascript content [[ref]()]
-2. Checks for update every minute [[ref]()]
-3. Ability to send notifications of type HTTP/HTTPS, SMS or Email [[ref]()]
-4. Full-page [screenshot](https://user-images.githubusercontent.com/25379724/90196790-c64f2880-dd9a-11ea-96e0-b5fbf7cdf89c.png) is taken on each webpage update [[ref]()]
+1. Uses headless Chrome to render dynamic javascript content [[ref](https://github.com/jellycsc/serverless-oinp-notifier/blob/master/index.js#L37-L43)]
+2. Checks for update every minute [[ref](https://github.com/jellycsc/serverless-oinp-notifier/blob/master/serverless.yml#L50-L53)]
+3. Ability to send notifications of type HTTP/HTTPS, SMS or Email [[ref](https://github.com/jellycsc/serverless-oinp-notifier/blob/master/serverless.yml#L100-L104)]
+4. Full-page [screenshot](https://user-images.githubusercontent.com/25379724/90196790-c64f2880-dd9a-11ea-96e0-b5fbf7cdf89c.png) is taken on each webpage update [[ref](https://github.com/jellycsc/serverless-oinp-notifier/blob/master/index.js#L68-L69)]
 
 ## A list of AWS services used in this app:
 
