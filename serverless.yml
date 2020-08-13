@@ -1,0 +1,42 @@
+service: oinp-notifier
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  memorySize: 1536
+  stage: ${opt:stage, 'dev'}
+  region: us-east-1
+  environment:
+    DDB_TABLE_NAME: ${self:custom.tableName}
+
+custom:
+  tableName: ${self:service}-${self:provider.stage}
+
+functions:
+  oinpNotifier:
+    handler: index.handler
+    # events:
+    #   - eventBridge:
+    #       schedule: rate(1 minute)
+
+resources:
+  Resources:
+    DynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${self:custom.tableName}
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+          - AttributeName: SK
+            KeyType: RANGE
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: S
+          - AttributeName: SK
+            AttributeType: S
+        BillingMode: PROVISIONED
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
