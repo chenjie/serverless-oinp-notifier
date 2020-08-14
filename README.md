@@ -8,6 +8,27 @@ This is a fully serverless application running on AWS. It leverages [AWS Free Ti
 
 ![Sample email notification](https://user-images.githubusercontent.com/25379724/90197012-6c029780-dd9b-11ea-8b93-d5b8aae16f9e.png)
 
+## Prerequisites
+
+You will need the following packages properly installed in your local environment in order  to deploy this app.
+
+| Name | Tested version(s) |
+| --- | --- |
+| [Git](https://git-scm.com/) | 2.17.0 |
+| [Node.js](https://nodejs.org/) (with NPM) | node==12.16.3, npm==6.14.4 |
+| [Serverless Framework](https://www.serverless.com/) | core==1.77.1, plugin==3.6.18, sdk==2.3.1, components==2.33.1 |
+| [AWS CLI](https://aws.amazon.com/cli/) | aws-cli/2.0.16 Python/3.7.4 Darwin/18.7.0 botocore/2.0.0dev20 |
+
+## Get started
+
+```
+git clone https://github.com/jellycsc/serverless-oinp-notifier.git
+cd serverless-oinp-notifier/
+npm i -g serverless
+npm i
+sls deploy
+```
+
 ## Features
 
 1. Uses headless Chrome to render dynamic javascript content [[ref](https://github.com/jellycsc/serverless-oinp-notifier/blob/master/index.js#L37-L43)]
