@@ -21,6 +21,8 @@ You will need the following packages properly installed in your local environmen
 
 ## Get started
 
+Search for `[Action required]` in `serverless.yml`, and change the `bucketName` to make it globally unique.
+
 ```
 git clone https://github.com/jellycsc/serverless-oinp-notifier.git
 cd serverless-oinp-notifier/
@@ -49,7 +51,7 @@ sls deploy
 
 \$0 since everything is under "Always Free" type of AWS Free Tier
 
-## Extra notes
+## Extra notes and tips
 
 ### DynamoDB table design
 
@@ -57,6 +59,10 @@ sls deploy
 - SK: a date-time string specified in [ISO 8601 format](https://en.wikipedia.org/wiki/ISO_8601)
 
 It is designed this way to allow easy query for the latest record.
+
+### Use lambda layers
+
+You can use lambda layers to reduce the deployment package size from 45 MB to <100 KB. Checkout the `use-layers` branch of this repo.
 
 ## License
 

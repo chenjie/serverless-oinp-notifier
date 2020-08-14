@@ -32,14 +32,11 @@ provider:
       Resource: !Ref OinpSnsTopic
 
 custom:
-  serverless-layers:
-    dependenciesPath: ./package.json
-    layersDeploymentBucket: ${cf:${self:custom.stackName}.ServerlessDeploymentBucketName}
   # DynamoDB table name
   tableName: ${self:service}-${self:provider.stage}
-  # CloudFormation stack name
-  stackName: ${self:service}-${self:provider.stage}
   # S3 bucket name (used to store screenshots)
+  # [Action required] You need to change the bucket name to make it globally unique
+  # For example, you can append some random characters to the end of it like this `${self:service}-${self:provider.stage}-ka2fs`
   bucketName: ${self:service}-${self:provider.stage}
 
 functions:
@@ -103,7 +100,3 @@ resources:
           # - Endpoint: 6471234567
           #   Protocol: sms
         TopicName: oinp
-
-# Reduce deployment package size by moving node_modules (except dev dependencies) into layer
-plugins:
-  - serverless-layers
