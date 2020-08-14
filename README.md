@@ -57,3 +57,7 @@ sls deploy
 - SK: a date-time string specified in [ISO 8601 format](https://en.wikipedia.org/wiki/ISO_8601)
 
 It is designed this way to allow easy query for the latest record.
+
+## License
+
+[MIT](LICENSE)
