@@ -15,5 +15,8 @@
     "chrome-aws-lambda": "^5.2.1",
     "puppeteer-core": "^5.2.1",
     "uuid": "^8.3.0"
+  },
+  "devDependencies": {
+    "serverless-layers": "^2.2.4"
   }
 }
